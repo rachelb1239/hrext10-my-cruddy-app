@@ -23,12 +23,37 @@ var clearDatabase = function() {
   return window.localStorage.clear();
 }
 
+const createObject = function() {
+  let carStats = {
+    'date' : document.getElementById('date').value,
+    'stats' : {}
+  };
+  let valElements = document.getElementsByClassName('value')
+  for (let i = 0; i < valElements.length; i++) {
+    carStats['stats'][valElements[i].id] = valElements[i].value;
+  }
+  return carStats;
+}
+
+const wrapObjectData = function(obj) { 
+  let wrappedData = ''
+  for (let keys in obj) {
+    if (typeof obj[keys] === 'object') {
+      wrappedData += wrapObjectData(obj[keys])
+    } else {
+      wrappedData += `<td>${obj[keys]}</td>`
+    }
+  }
+  return wrappedData
+}
+
 var showDatabaseContents = function() {
   $('tbody').html('');
-
-  for (var i = 0; i < window.localStorage.length; i++) {
-    var key = window.localStorage.key(i);
-    $('tbody').append(`<tr><td>${key}</td><td>${window.localStorage.getItem(key)}</td></tr>`)
+  for (let i = 0; i < window.localStorage.length; i++) {
+    let key = window.localStorage.key(i);
+    let values = JSON.parse(window.localStorage.getItem(key));
+    let elementValues = wrapObjectData(values);
+    $('tbody').append(`<tr><td>${key}</td>${elementValues}</tr>`)
   }
 }
 
@@ -41,7 +66,7 @@ var getKeyInput = function() {
 }
 
 var getValueInput = function() {
-  return $('.value').val();
+  return JSON.stringify(createObject());
 }
 
 var resetInputs = function() {
@@ -49,6 +74,7 @@ var resetInputs = function() {
   $('.value').val('');
 }
 
+// Event Handlers
 $(document).ready(function() {
   showDatabaseContents();
 

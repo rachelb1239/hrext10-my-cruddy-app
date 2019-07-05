@@ -15,17 +15,41 @@
   <div class="container">
     <div class="row mb-3">
       <div class="input-group col-sm-5">
+
         <div class="input-group-prepend">
-          <label class="input-group-text">Key</label>
+          <label class="input-group-text">Vehichle</label>
         </div>
         <input class="key form-control" type="text">
       </div>
+
       <div class="input-group col-sm-5">
         <div class="input-group-prepend">
-          <label class="input-group-text">Value</label>
+          <label class="input-group-text">Date</label>
         </div>
-        <input class="value form-control" type="text">
+        <input id="date" class="subkey form-control" type="text">
       </div>
+
+      <div class="input-group col-sm-5">
+        <div class="input-group-prepend">
+          <label class="input-group-text">Starting Milage</label>
+        </div>
+        <input id="starting-milage" class="value form-control" type="text">
+      </div>
+
+       <div class="input-group col-sm-5">
+        <div class="input-group-prepend">
+          <label class="input-group-text">Ending Milage</label>
+        </div>
+        <input id="ending-milage" class="value form-control" type="text">
+      </div>
+
+      <div class="input-group col-sm-5">
+        <div class="input-group-prepend">
+          <label class="input-group-text">Purpose of Trip</label>
+        </div>
+        <input id="purpose-of-trip" class="value form-control" type="text">
+      </div>
+
       <button class="reset btn btn-danger btn-sm col-sm-2">Reset Input</button>
     </div>
     <div class="row mb-3 justify-content-center">
@@ -38,8 +62,11 @@
       <table class="table table-striped table-hover table-dark">
         <thead>
           <tr>
-            <th scope="col">Key</th>
-            <th scope="col">Value</th>
+            <th scope="col">Vehichle</th>
+            <th scope="col">Date</th>
+            <th scope="col">Starting Milage</th>
+            <th scope="col">Ending Milage</th>
+            <th scope="col">Purpose of Trip</th>
           </tr>
         </thead>
         <tbody>
