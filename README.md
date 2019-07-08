@@ -4,9 +4,8 @@
 
 Create a milage tracking app that allows user to add, update, or delete entries in local storage. User should be able to track vehicle info with following values: date, starting milage, ending milage, purpose of trip.
 
- ## Version 1.1 Requirements
-- [ ] Change Date to be the KEY instead of a key-value pair with the stats object as the value
-- [ ] Allow object to be added too if date entered doesn't already exist
+ ## Version 1.2 Requirements
+- [ ] Clean up update function calls/click handlers
 - [ ] Enforce valid data type on inputs (e.g. date should be a valid date)
 
  
@@ -20,6 +19,5 @@ Create a milage tracking app that allows user to add, update, or delete entries 
 - [ ] Update repo name
 
 
- ## Version 1.0 Update 07/05/19
- - UI updated for vehichle, date, starting milage, ending milage, purpose of trip
- - Updated to store value as JSON and parse to display
+ ## Version 1.1 Update 07/07/19
+ - Updated to store and display multiple dates for same key

@@ -23,23 +23,38 @@ var clearDatabase = function() {
   return window.localStorage.clear();
 }
 
-const createObject = function() {
-  let carStats = {
-    'date' : document.getElementById('date').value,
-    'stats' : {}
-  };
-  let valElements = document.getElementsByClassName('value')
-  for (let i = 0; i < valElements.length; i++) {
-    carStats['stats'][valElements[i].id] = valElements[i].value;
-  }
-  return carStats;
+const getKeyValue = function(key) {
+  return window.localStorage.getItem(key)
 }
 
-const wrapObjectData = function(obj) { 
+const updateRedux = function (key) {
+  value = JSON.stringify(addToItem(getDateStatsObj(), JSON.parse(getKeyValue(key))))
+  return window.localStorage.setItem(key, value)
+}
+
+const addToItem = function (target, source) {
+ return Object.assign({},target, source)
+}
+
+const getDateStatsObj = function () {
+  return { [document.getElementById('date').value] : getCarStats() }
+}
+
+const reducerCarStats = (acc, cur) => { 
+  acc[cur.id] = cur.value
+  return acc
+}
+
+const getCarStats = function() {
+  return Array.prototype.reduce.call(document.getElementsByClassName('value'), reducerCarStats, {})
+}
+
+const wrapObjectData = function(obj, label) { 
   let wrappedData = ''
   for (let keys in obj) {
     if (typeof obj[keys] === 'object') {
-      wrappedData += wrapObjectData(obj[keys])
+      wrappedData += `<tr><td>${label}</td>`
+      wrappedData += wrapObjectData(obj[keys]) + `</tr>`
     } else {
       wrappedData += `<td>${obj[keys]}</td>`
     }
@@ -51,9 +66,8 @@ var showDatabaseContents = function() {
   $('tbody').html('');
   for (let i = 0; i < window.localStorage.length; i++) {
     let key = window.localStorage.key(i);
-    let values = JSON.parse(window.localStorage.getItem(key));
-    let elementValues = wrapObjectData(values);
-    $('tbody').append(`<tr><td>${key}</td>${elementValues}</tr>`)
+    let values = JSON.parse(getKeyValue(key));
+    $('tbody').append(wrapObjectData(values, key));
   }
 }
 
@@ -66,7 +80,7 @@ var getKeyInput = function() {
 }
 
 var getValueInput = function() {
-  return JSON.stringify(createObject());
+  return JSON.stringify(getDateStatsObj());
 }
 
 var resetInputs = function() {
@@ -98,7 +112,7 @@ $(document).ready(function() {
   $('.update').click(function() {
     if (getKeyInput() !== '' && getValueInput() !== '') {
       if (keyExists(getKeyInput())) {
-        updateItem(getKeyInput(), getValueInput());
+        updateRedux(getKeyInput());
         showDatabaseContents();
         resetInputs();
       } else {
