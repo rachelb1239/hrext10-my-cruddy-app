@@ -1,43 +1,49 @@
-/*
-
- ### Basic Reqs
-- [ ] Where to store data? (localstorage)
-- [ ] How to modify data? (update action, delete action)
-
-*/
+// display order
+const tableDisplayOrder = ['starting-mileage','ending-mileage', 'purpose-of-trip'];
 
 //localStorage functions
-var createItem = function(key, value) {
-  return window.localStorage.setItem(key, value);
+const createItem = function(key, value) {
+  return window.localStorage.setItem(key, value)
 }
 
-var updateItem = function(key, value) {
-  return window.localStorage.setItem(key, value);
+const updateItem = function(key, value) {
+  return window.localStorage.setItem(key, value)
 }
 
-var deleteItem = function(key) {
-  return window.localStorage.removeItem(key);
+const deleteItem = function(key) {
+  return window.localStorage.removeItem(key)
 }
 
-var clearDatabase = function() {
-  return window.localStorage.clear();
+const clearDatabase = function() {
+  return window.localStorage.clear()
 }
 
 const getKeyValue = function(key) {
   return window.localStorage.getItem(key)
 }
 
-const updateRedux = function (key) {
-  value = JSON.stringify(addToItem(getDateStatsObj(), JSON.parse(getKeyValue(key))))
-  return window.localStorage.setItem(key, value)
+const keyExists = function(key) {
+  return getKeyValue(key) !== null
 }
 
-const addToItem = function (target, source) {
- return Object.assign({},target, source)
+// Retrieve Input Functions
+const getKeyInput = function() {
+  return $('.key').val()
 }
 
 const getDateStatsObj = function () {
-  return { [document.getElementById('date').value] : getCarStats() }
+  let inputDate = document.getElementById('date').value
+  let keyValue = JSON.parse(getKeyValue(getKeyInput()))
+  let recordCount = 0
+  if (keyValue === null) {
+    keyValue = {};
+  }
+  if (keyValue.hasOwnProperty(inputDate)) {
+    keyValue[inputDate].push(getCarStats())
+  } else {
+    keyValue[inputDate] = [getCarStats()]
+  }
+  return keyValue;
 }
 
 const reducerCarStats = (acc, cur) => { 
@@ -49,41 +55,37 @@ const getCarStats = function() {
   return Array.prototype.reduce.call(document.getElementsByClassName('value'), reducerCarStats, {})
 }
 
-const wrapObjectData = function(obj, label) { 
+const getValueInput = function() { 
+  return JSON.stringify(getDateStatsObj());
+}
+
+// Format/display data
+const getTableHTML = function(key, obj) { 
   let wrappedData = ''
-  for (let keys in obj) {
-    if (typeof obj[keys] === 'object') {
-      wrappedData += `<tr><td>${label}</td>`
-      wrappedData += wrapObjectData(obj[keys]) + `</tr>`
-    } else {
-      wrappedData += `<td>${obj[keys]}</td>`
-    }
+  for (let dates in obj) {
+    obj[dates].forEach(function (value, index) {
+     wrappedData += `<tr><td>${key}</td>` // car label
+     wrappedData += `<td>${dates}</td>`// date label
+     wrappedData += `<td>${index + 1}</td>` // entry # for date
+     tableDisplayOrder.forEach(function(dispValue) {
+        wrappedData += `<td>${value[dispValue]}</td>`
+      })
+      wrappedData += `</tr>`
+    })
   }
   return wrappedData
 }
 
-var showDatabaseContents = function() {
+const showDatabaseContents = function() {
   $('tbody').html('');
   for (let i = 0; i < window.localStorage.length; i++) {
     let key = window.localStorage.key(i);
     let values = JSON.parse(getKeyValue(key));
-    $('tbody').append(wrapObjectData(values, key));
+    $('tbody').append(getTableHTML(key, values));
   }
 }
 
-var keyExists = function(key) {
-  return window.localStorage.getItem(key) !== null
-}
-
-var getKeyInput = function() {
-  return $('.key').val();
-}
-
-var getValueInput = function() {
-  return JSON.stringify(getDateStatsObj());
-}
-
-var resetInputs = function() {
+const resetInputs = function() {
   $('.key').val('');
   $('.value').val('');
 }
@@ -93,33 +95,35 @@ $(document).ready(function() {
   showDatabaseContents();
 
   $('.create').click(function() {
-    if (getKeyInput() !== '' && getValueInput() !== '') {
-      if (keyExists(getKeyInput())) {
-        if(confirm('key already exists in database, do you want to update instead?')) {
-          updateItem(getKeyInput(), getValueInput());
+    let keyInput = getKeyInput();
+    if (keyInput !== '' && getValueInput() !== '') {
+      if (keyExists(keyInput)) {
+        if(confirm('Key already exists in database. Do you want to update instead?')) {
+          updateItem(keyInput, getValueInput());
           showDatabaseContents();
         }
       } else {
-        createItem(getKeyInput(), getValueInput());
+        createItem(keyInput, getValueInput());
         showDatabaseContents();
         resetInputs();
       }
     } else  {
-      alert('key and value must not be blank');
+      alert('Key and value must not be blank');
     }
   });
 
   $('.update').click(function() {
-    if (getKeyInput() !== '' && getValueInput() !== '') {
-      if (keyExists(getKeyInput())) {
-        updateRedux(getKeyInput());
+    let keyInput = getKeyInput();
+    if (keyInput !== '' && getValueInput() !== '') {
+      if (keyExists(keyInput)) {
+        updateItem(keyInput, getValueInput());
         showDatabaseContents();
         resetInputs();
       } else {
-        alert('key does not exist in database');
+        alert('Key does not exist in database');
       }
     } else {
-      alert('key and value must not be blank');
+      alert('Key and value must not be blank');
     }
   });
 
@@ -130,10 +134,10 @@ $(document).ready(function() {
         showDatabaseContents();
         resetInputs();
       } else {
-        alert('key does not exist in database');
+        alert('Key does not exist in database');
       }
     } else {
-      alert('key must not be blank');
+      alert('Key must not be blank');
     }
   });
 
