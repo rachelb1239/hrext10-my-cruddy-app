@@ -76,13 +76,37 @@ const getTableHTML = function(key, obj) {
   return wrappedData
 }
 
+const createDropDownButtons = function(value) {
+  let $element = $('<button></button>').text(value);
+  $element.attr( {
+    "class": "dropdown-item",
+    "type": "button"
+  })
+  return $element;
+}
+
 const showDatabaseContents = function() {
   $('tbody').html('');
+  $('.dropdown-menu').html('');
   for (let i = 0; i < window.localStorage.length; i++) {
     let key = window.localStorage.key(i);
     let values = JSON.parse(getKeyValue(key));
     $('tbody').append(getTableHTML(key, values));
+    $('.dropdown-menu').append(createDropDownButtons(key));
   }
+}
+
+const checkExisting = function() {
+ let currentDate = $('#date').val()
+ let existingValue = JSON.parse(getKeyValue(getKeyInput()))
+ let entries = 1
+ if (existingValue !== null) {
+  let dateEntries = existingValue[currentDate]
+  if (dateEntries !== undefined) {
+    entries = dateEntries.length + 1
+  }
+ }
+  $('#entry').val(entries);
 }
 
 const resetInputs = function() {
@@ -151,4 +175,18 @@ $(document).ready(function() {
       showDatabaseContents();
     }
   })
+
+  $('.dropdown-menu').click(function() {
+      $('.key').val($(this).text());
+      checkExisting();
+  });
+
+  $('#date').change(function() {
+    checkExisting();
+  })
+
+  $('.key').change(function() {
+    checkExisting();
+  })
+
 })
