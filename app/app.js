@@ -64,7 +64,7 @@ const getTableHTML = function(key, obj) {
   let wrappedData = ''
   for (let dates in obj) {
     obj[dates].forEach(function (value, index) {
-     wrappedData += `<tr><td>${key}</td>` // car label
+     wrappedData += `<tr id=\"${key} ${dates} ${index}\""><td>${key}</td>` // car label
      wrappedData += `<td>${dates}</td>`// date label
      wrappedData += `<td>${index + 1}</td>` // entry # for date
      tableDisplayOrder.forEach(function(dispValue) {
@@ -96,7 +96,7 @@ const showDatabaseContents = function() {
   }
 }
 
-const checkExisting = function() {
+const updateEntryCount = function() {
  let currentDate = $('#date').val()
  let existingValue = JSON.parse(getKeyValue(getKeyInput()))
  let entries = 1
@@ -112,6 +112,7 @@ const checkExisting = function() {
 const resetInputs = function() {
   $('.key').val('');
   $('.value').val('');
+  $('.sub-key').val('')
 }
 
 // Event Handlers
@@ -152,17 +153,28 @@ $(document).ready(function() {
   });
 
   $('.delete').click(function() {
-     if (getKeyInput() !== '') {
-      if (keyExists(getKeyInput())) {
-        deleteItem(getKeyInput());
-        showDatabaseContents();
-        resetInputs();
-      } else {
-        alert('Key does not exist in database');
-      }
+    let selectedItem = event.currentTarget.id.split(' ')
+    let selectedCar = selectedItem[0]
+    let selectedDate = selectedItem[1]
+    let selectedEntryIndex = selectedItem[2]
+    let currentValue = JSON.parse(getKeyValue(selectedCar))
+    let dateEntries = currentValue[selectedDate]
+    dateEntries.splice(selectedEntryIndex, 1) // remove selected entry
+    if (dateEntries.length === 0) {
+      delete currentValue[selectedDate]
     } else {
-      alert('Key must not be blank');
+      currentValue[selectedDate] = dateEntries
     }
+    if (Object.entries(currentValue).length === 0) {
+      deleteItem(selectedCar)
+    } else {
+      updateItem(selectedCar, JSON.stringify(currentValue))
+    }
+    $('.delete').attr({
+      "disabled": true
+    })
+    showDatabaseContents();
+
   });
 
   $('.reset').click(function() {
@@ -177,16 +189,30 @@ $(document).ready(function() {
   })
 
   $('.dropdown-menu').click(function() {
-      $('.key').val($(this).text());
-      checkExisting();
+      $('.key').val($(event.target).text());
+      updateEntryCount();
   });
 
   $('#date').change(function() {
-    checkExisting();
+    updateEntryCount();
   })
 
   $('.key').change(function() {
-    checkExisting();
+    updateEntryCount();
+  })
+
+  $('tbody').click(function() {
+    let selectedRow = event.target.parentNode
+    $('tr').css({
+      "background-color" : "white"
+    })
+    $(selectedRow).css({
+      "background-color" : "yellow"
+    })
+    $('.delete').attr({
+      "id": selectedRow.id,
+      "disabled": false
+    })
   })
 
 })
